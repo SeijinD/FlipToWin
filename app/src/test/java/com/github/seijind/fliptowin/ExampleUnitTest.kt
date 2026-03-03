@@ -1,4 +1,4 @@
-package com.github.seijind.flipthecard
+package com.github.seijind.fliptowin
 
 import org.junit.Test
 

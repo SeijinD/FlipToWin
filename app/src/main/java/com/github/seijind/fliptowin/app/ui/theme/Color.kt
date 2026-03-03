@@ -1,4 +1,4 @@
-package com.github.seijind.flipthecard.ui.theme
+package com.github.seijind.fliptowin.app.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

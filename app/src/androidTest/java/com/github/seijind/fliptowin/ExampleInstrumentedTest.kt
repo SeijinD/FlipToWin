@@ -1,4 +1,4 @@
-package com.github.seijind.flipthecard
+package com.github.seijind.fliptowin
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
