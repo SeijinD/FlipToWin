@@ -15,7 +15,9 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableIntState
@@ -80,6 +82,7 @@ internal fun FlipToWinGrid(
     Box(
         modifier = modifier
             .fillMaxSize()
+            .verticalScroll(rememberScrollState())
             .onSizeChanged { intSize -> size.value = intSize },
         contentAlignment = Alignment.Center
     ) {
@@ -222,8 +225,9 @@ private fun rememberOffsetAnim(
     onAnimationEnded: () -> Unit,
 ): State<Offset> {
     val offsetAnim = remember { Animatable(initialValue = Offset.Zero, typeConverter = Offset.VectorConverter) }
-
-    LaunchedEffect(key1 = moveInCenter) {
+    
+    // screenSize is a key so that we recalculate the center position on rotation
+    LaunchedEffect(key1 = moveInCenter, key2 = screenSize) {
         val targetOffset = if (moveInCenter) {
             val x = screenSize.width / 2f - cardSize.intValue.div(2) - cardPosition.value.x
             val y = screenSize.height / 2f - cardSize.intValue.div(2) - cardPosition.value.y

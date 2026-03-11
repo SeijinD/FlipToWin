@@ -31,22 +31,27 @@ class FlipToWinViewModel : ViewModel() {
     private val _resultEvent = MutableSharedFlow<Int>()
     val resultEvent: SharedFlow<Int> = _resultEvent.asSharedFlow()
 
+    private var initJob: Job? = null
     private var wiggleJob: Job? = null
 
     /**
      * Initializes the game with the provided [result].
      *
-     * Call this after fetching data from your API. It cancels any pending
-     * animations and resets the game state before processing the new data.
+     * Call this after fetching data from your API. By default, it skips
+     * initialization if the game is already populated (to survive rotation).
      *
      * @param result The success or error result wrapping the API response.
+     * @param force If true, resets and re-initializes even if state exists.
      */
-    fun init(result: FlipToWinResult) {
+    fun init(result: FlipToWinResult, force: Boolean = false) {
+        if (!force && _uiState.value.items.isNotEmpty()) return
+
+        initJob?.cancel()
         wiggleJob?.cancel()
 
         _uiState.update { FlipToWinUiState().copy(showConfigErrorDialog = null) }
 
-        viewModelScope.launch {
+        initJob = viewModelScope.launch {
             delay(INITIAL_LOAD_DELAY_MS)
 
             when (result) {
