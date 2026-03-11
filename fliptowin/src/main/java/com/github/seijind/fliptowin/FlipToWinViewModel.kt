@@ -21,33 +21,17 @@ class FlipToWinViewModel : ViewModel() {
 
     private var wiggleJob: Job? = null
 
-    init {
-        setup()
-    }
-
-    private fun setup() {
+    /**
+     * Entry point for the game. Call this after receiving the API response.
+     * Safe to call multiple times — each call resets the game state.
+     */
+    fun init(result: FlipToWinResult) {
         viewModelScope.launch {
             delay(INITIAL_LOAD_DELAY_MS)
 
-            val mockResult: FlipToWinResult = FlipToWinResult.Success(
-                response = FlipToWinResponse(
-                    winRewardType = 1,
-                    rewards = listOf(
-                        FlipToWinRewardType(1, "#FF5722", "#E64A19", "url_points"),
-                        FlipToWinRewardType(2, "#2196F3", "#1976D2", "url_gift"),
-                        FlipToWinRewardType(0, "#9E9E9E", "#616161", "url_lost")
-                    ),
-                    config = FlipToWinConfig(
-                        cardBack = FlipToWinRewardType(0, "#EBD197", "#A2790D", "url_back_icon"),
-                        wiggleDelayMillis = 3000L,
-                        revealAllAtEnd = false,
-                    )
-                )
-            )
-
-            when (mockResult) {
+            when (result) {
                 is FlipToWinResult.Success -> {
-                    val data = mockResult.response
+                    val data = result.response
 
                     if (data.winRewardType == null || data.rewards.isEmpty()) {
                         _uiState.update { it.copy(showConfigErrorDialog = CONFIGURATION_ERROR_CODE) }
@@ -74,7 +58,7 @@ class FlipToWinViewModel : ViewModel() {
                     startWiggleWithDelay()
                 }
                 is FlipToWinResult.Error -> {
-                    _uiState.update { it.copy(showConfigErrorDialog = mockResult.code) }
+                    _uiState.update { it.copy(showConfigErrorDialog = result.code) }
                 }
             }
         }
@@ -190,7 +174,7 @@ class FlipToWinViewModel : ViewModel() {
     }
 
     companion object {
-        /** Initial delay before loading game data, allows the UI to settle. */
+        /** Initial delay before processing the result, allows the UI to settle. */
         private const val INITIAL_LOAD_DELAY_MS = 600L
 
         /** Delay before the selected card starts scaling and moving to center. */
