@@ -27,7 +27,7 @@ class FlipToWinViewModel : ViewModel() {
 
     private fun setup() {
         viewModelScope.launch {
-            delay(600)
+            delay(INITIAL_LOAD_DELAY_MS)
 
             val mockResult: FlipToWinResult = FlipToWinResult.Success(
                 response = FlipToWinResponse(
@@ -99,7 +99,7 @@ class FlipToWinViewModel : ViewModel() {
                     card.clickable.value = false
                 }
 
-                val claimSuccess = true 
+                val claimSuccess = true
                 if (!claimSuccess) {
                     _uiState.value.items.forEach { card -> card.clickable.value = true }
                     _uiState.value.isGameActive.value = false
@@ -110,7 +110,7 @@ class FlipToWinViewModel : ViewModel() {
                 item.isSelected.value = true
                 _uiState.value.winRewardType.value?.let { type -> item.type.value = type }
 
-                delay(500)
+                delay(BEFORE_SELECTED_CARD_MOVE_MS)
                 item.isScaling.value = true
                 item.moveInCenter.value = true
             }
@@ -122,30 +122,31 @@ class FlipToWinViewModel : ViewModel() {
         if (wonReward == null) return
 
         viewModelScope.launch {
-            delay(500)
+            delay(BEFORE_SELECTED_CARD_FLIP_MS)
             item.isFlipped.value = true
 
-            delay(350) 
+            // Wait for card to reach 90° (midpoint of flip) before swapping the image
+            delay(CARD_FLIP_MIDPOINT_MS)
             item.image.value = wonReward.image.value
             item.bitmap.value = wonReward.bitmap.value
             item.brush.value = wonReward.brush.value
 
-            delay(2000)
+            delay(SHOW_RESULT_MS)
             item.isScaling.value = false
             item.moveInCenter.value = false
 
-            delay(500)
-            
+            delay(BEFORE_REVEAL_ALL_MS)
             _uiState.value.items.forEach { card ->
                 if (!card.isSelected.value) {
                     card.isFlipped.value = true
                 }
             }
 
-            delay(350)
+            // Wait for remaining cards to reach 90° before assigning their reward visuals
+            delay(CARD_FLIP_MIDPOINT_MS)
             mapper.assignRemainingRewards(wonReward.type.value ?: 0, _uiState.value.items, _uiState.value.rewards)
 
-            delay(650) 
+            delay(AFTER_REVEAL_ALL_MS)
 
             if (!_uiState.value.config.value.revealAllAtEnd) {
                 _uiState.value.items.forEach { card ->
@@ -154,7 +155,8 @@ class FlipToWinViewModel : ViewModel() {
                     }
                 }
 
-                delay(350)
+                // Wait for cards to reach 90° before resetting their visuals to card back
+                delay(CARD_FLIP_MIDPOINT_MS)
                 _uiState.value.items.forEach { card ->
                     if (!card.isSelected.value) {
                         card.image.value = _uiState.value.config.value.cardBackImage
@@ -164,8 +166,38 @@ class FlipToWinViewModel : ViewModel() {
                 }
             }
 
-            delay(1000)
+            delay(BEFORE_GAME_RESET_MS)
             _uiState.value.isGameActive.value = false
         }
     }
+
+    companion object {
+        /** Initial delay before loading game data, allows the UI to settle. */
+        private const val INITIAL_LOAD_DELAY_MS = 600L
+
+        /** Delay before the selected card starts scaling and moving to center. */
+        private const val BEFORE_SELECTED_CARD_MOVE_MS = 500L
+
+        /** Delay after the card reaches center before starting its flip animation. */
+        private const val BEFORE_SELECTED_CARD_FLIP_MS = 500L
+
+        /**
+         * Half the flip animation duration (flip anim = 700ms).
+         * Used to time image/brush swaps at the invisible midpoint of a flip (rotationY = 90°).
+         */
+        private const val CARD_FLIP_MIDPOINT_MS = 350L
+
+        /** How long the revealed reward is shown to the user before the grid resets. */
+        private const val SHOW_RESULT_MS = 2000L
+
+        /** Delay before flipping the remaining (non-selected) cards. */
+        private const val BEFORE_REVEAL_ALL_MS = 500L
+
+        /** Delay after assigning remaining card visuals, waiting for flip animation to complete. */
+        private const val AFTER_REVEAL_ALL_MS = 650L
+
+        /** Final pause before resetting isGameActive, giving the user time to see the result. */
+        private const val BEFORE_GAME_RESET_MS = 1000L
+    }
 }
+
