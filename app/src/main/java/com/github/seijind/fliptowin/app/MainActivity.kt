@@ -4,44 +4,28 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.github.seijind.fliptowin.app.ui.theme.FlipTheCardTheme
+import com.github.seijind.fliptowin.FlipToWinScreen
+import com.github.seijind.fliptowin.app.ui.theme.FlipToWinTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            FlipTheCardTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+            FlipToWinTheme {
+                FlipToWinScreen()
             }
         }
     }
 }
 
+@Preview(showBackground = true, locale = "el", fontScale = 1.5f)
+@Preview(showBackground = true, locale = "en")
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
+private fun LoyaltyDailyRewardsContentPreview() {
+    FlipToWinTheme {
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    FlipTheCardTheme {
-        Greeting("Android")
     }
 }
