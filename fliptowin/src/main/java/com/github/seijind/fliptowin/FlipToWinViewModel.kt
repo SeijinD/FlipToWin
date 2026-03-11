@@ -6,8 +6,11 @@ import kotlinx.collections.immutable.mutate
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -19,6 +22,9 @@ class FlipToWinViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(FlipToWinUiState())
     val uiState: StateFlow<FlipToWinUiState> = _uiState.asStateFlow()
 
+    private val _resultEvent = MutableSharedFlow<Int>()
+    val resultEvent: SharedFlow<Int> = _resultEvent.asSharedFlow()
+
     private var wiggleJob: Job? = null
 
     /**
@@ -28,9 +34,7 @@ class FlipToWinViewModel : ViewModel() {
     fun init(result: FlipToWinResult) {
         wiggleJob?.cancel()
 
-        _uiState.update { 
-            FlipToWinUiState().copy(showConfigErrorDialog = null) 
-        }
+        _uiState.update { FlipToWinUiState().copy(showConfigErrorDialog = null) }
 
         viewModelScope.launch {
             delay(INITIAL_LOAD_DELAY_MS)
@@ -63,9 +67,7 @@ class FlipToWinViewModel : ViewModel() {
 
                     startWiggleWithDelay()
                 }
-                is FlipToWinResult.Error -> {
-                    _uiState.update { it.copy(showConfigErrorDialog = result.code) }
-                }
+                is FlipToWinResult.Error -> _uiState.update { it.copy(showConfigErrorDialog = result.code) }
             }
         }
     }
@@ -154,7 +156,9 @@ class FlipToWinViewModel : ViewModel() {
             }
 
             delay(BEFORE_GAME_RESET_MS)
+            val wonType = item.type ?: 0
             _uiState.update { it.copy(isGameActive = false) }
+            _resultEvent.emit(wonType)
         }
     }
 

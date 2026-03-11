@@ -34,7 +34,13 @@ class MainActivity : ComponentActivity() {
                     viewModel.init(mockResult)
                 }
 
-                FlipToWinScreen(viewModel = viewModel)
+                FlipToWinScreen(
+                    viewModel = viewModel,
+                    onResult = { result ->
+                        android.util.Log.d("FlipToWin", "Game Ended! Won type: $result")
+                        android.widget.Toast.makeText(this@MainActivity, "Won reward: $result", android.widget.Toast.LENGTH_SHORT).show()
+                    }
+                )
             }
         }
     }
