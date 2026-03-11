@@ -87,11 +87,11 @@ internal fun FlipToWinGrid(
             verticalArrangement = Arrangement.spacedBy(8.dp),
             horizontalArrangement = Arrangement.Center,
         ) {
-            uiState.items.forEach { cardItem ->
+            uiState.items.forEachIndexed { index, item ->
                 FlipToWinCard(
-                    item = cardItem,
-                    onCardClicked = { item -> uiState.onCardClicked(item) },
-                    onMoveInCenterAnimationEnded = uiState.onMoveInCenterAnimationEnded,
+                    item = item,
+                    onCardClicked = { uiState.onCardClicked(index) },
+                    onMoveInCenterAnimationEnded = { uiState.onMoveInCenterAnimationEnded(index) },
                     modifier = Modifier
                         .width(width)
                         .aspectRatio(1f)
@@ -104,9 +104,9 @@ internal fun FlipToWinGrid(
 
 @Composable
 private fun FlipToWinCard(
-    item: FlipToWinUiItem,
-    onCardClicked: (FlipToWinUiItem) -> Unit,
-    onMoveInCenterAnimationEnded: (FlipToWinUiItem) -> Unit,
+    item: FlipToWinUiCardData,
+    onCardClicked: () -> Unit,
+    onMoveInCenterAnimationEnded: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val density = LocalDensity.current
@@ -117,9 +117,7 @@ private fun FlipToWinCard(
 
     val wiggleAnim by rememberWiggleAnim(item.isWiggling)
     val scaleAnim by rememberScaleAnim(item.isScaling)
-    val offsetAnim by rememberOffsetAnim(item.moveInCenter, cardPosition, cardSize, screenSize) {
-        onMoveInCenterAnimationEnded(item)
-    }
+    val offsetAnim by rememberOffsetAnim(item.moveInCenter, cardPosition, cardSize, screenSize) { onMoveInCenterAnimationEnded() }
     val rotationAnim by rememberRotationAnim(item.isFlipped)
 
     Box(
@@ -127,7 +125,7 @@ private fun FlipToWinCard(
             .onSizeChanged { size -> cardSize.intValue = size.width }
             .onGloballyPositioned { coordinates -> cardPosition.value = coordinates.positionInRoot() }
             .absoluteOffset { IntOffset(offsetAnim.x.roundToInt(), offsetAnim.y.roundToInt()) }
-            .zIndex(if (item.isSelected.value) 1f else 0f)
+            .zIndex(if (item.isSelected) 1f else 0f)
             .graphicsLayer {
                 rotationY = rotationAnim
                 rotationZ = wiggleAnim
@@ -137,19 +135,19 @@ private fun FlipToWinCard(
             }
             .clip(RoundedCornerShape(8.dp))
             .drawBehind {
-                val brush = item.brush.value ?: Brush.verticalGradient(colors = listOf(Color.White, Color.White))
+                val brush = item.brush ?: Brush.verticalGradient(colors = listOf(Color.White, Color.White))
                 drawRoundRect(
                     brush = brush,
                     cornerRadius = CornerRadius(8.dp.toPx())
                 )
             }
-            .clickable(enabled = item.clickable.value) { onCardClicked(item) },
+            .clickable(enabled = item.clickable) { onCardClicked() },
         contentAlignment = Alignment.Center
     ) {
         FlipToWinCardImageItem(
-            image = item.image.value,
+            image = item.image,
             bitmap = item.bitmap,
-            isFlipped = item.isFlipped.value
+            isFlipped = item.isFlipped,
         )
     }
 }
@@ -157,16 +155,16 @@ private fun FlipToWinCard(
 @Composable
 private fun FlipToWinCardImageItem(
     image: String,
-    bitmap: State<Bitmap?>,
-    isFlipped: Boolean
+    bitmap: Bitmap?,
+    isFlipped: Boolean,
 ) {
     val modifier = Modifier
-        .fillMaxSize(if (bitmap.value == null) 0.5f else 1f)
+        .fillMaxSize(if (bitmap == null) 0.5f else 1f)
         .graphicsLayer {
             if (isFlipped) scaleX = -1f
         }
 
-    if (bitmap.value == null) {
+    if (bitmap == null) {
         AsyncImage(
             model = image.loadImageWithCrossfade(),
             contentDescription = null,
@@ -174,21 +172,19 @@ private fun FlipToWinCardImageItem(
             modifier = modifier,
         )
     } else {
-        bitmap.value?.asImageBitmap()?.let {
-            Image(
-                bitmap = it,
-                contentDescription = null,
-                modifier = modifier
-            )
-        }
+        Image(
+            bitmap = bitmap.asImageBitmap(),
+            contentDescription = null,
+            modifier = modifier
+        )
     }
 }
 
 @Composable
-private fun rememberWiggleAnim(isWigglingState: State<Boolean>): State<Float> {
+private fun rememberWiggleAnim(isWiggling: Boolean): State<Float> {
     val wiggleAnim = remember { Animatable(0f) }
-    LaunchedEffect(isWigglingState.value) {
-        if (isWigglingState.value) {
+    LaunchedEffect(isWiggling) {
+        if (isWiggling) {
             while (isActive) {
                 wiggleAnim.animateTo(-10f, tween(700))
                 wiggleAnim.animateTo(10f, tween(700))
@@ -201,10 +197,10 @@ private fun rememberWiggleAnim(isWigglingState: State<Boolean>): State<Float> {
 }
 
 @Composable
-private fun rememberScaleAnim(isScalingState: State<Boolean>): State<Float> {
+private fun rememberScaleAnim(isScaling: Boolean): State<Float> {
     val scaleAnim = remember { Animatable(1f) }
-    LaunchedEffect(isScalingState.value) {
-        val target = if (isScalingState.value) 2.5f else 1f
+    LaunchedEffect(isScaling) {
+        val target = if (isScaling) 2.5f else 1f
         scaleAnim.animateTo(target, tween(500))
     }
     return scaleAnim.asState()
@@ -212,7 +208,7 @@ private fun rememberScaleAnim(isScalingState: State<Boolean>): State<Float> {
 
 @Composable
 private fun rememberOffsetAnim(
-    moveInCenterState: State<Boolean>,
+    moveInCenter: Boolean,
     cardPosition: State<Offset>,
     cardSize: MutableIntState,
     screenSize: IntSize,
@@ -220,8 +216,8 @@ private fun rememberOffsetAnim(
 ): State<Offset> {
     val offsetAnim = remember { Animatable(initialValue = Offset.Zero, typeConverter = Offset.VectorConverter) }
 
-    LaunchedEffect(key1 = moveInCenterState.value) {
-        val targetOffset = if (moveInCenterState.value) {
+    LaunchedEffect(key1 = moveInCenter) {
+        val targetOffset = if (moveInCenter) {
             val x = screenSize.width / 2f - cardSize.intValue.div(2) - cardPosition.value.x
             val y = screenSize.height / 2f - cardSize.intValue.div(2) - cardPosition.value.y
             Offset(x, y)
@@ -229,7 +225,7 @@ private fun rememberOffsetAnim(
             Offset.Zero
         }
         offsetAnim.animateTo(targetOffset, tween(500))
-        if (moveInCenterState.value) {
+        if (moveInCenter) {
             onAnimationEnded()
         }
     }
@@ -238,10 +234,10 @@ private fun rememberOffsetAnim(
 }
 
 @Composable
-private fun rememberRotationAnim(isFlippedState: State<Boolean>): State<Float> {
+private fun rememberRotationAnim(isFlipped: Boolean): State<Float> {
     val rotationAnim = remember { Animatable(0f) }
-    LaunchedEffect(isFlippedState.value) {
-        val target = if (isFlippedState.value) 180f else 0f
+    LaunchedEffect(isFlipped) {
+        val target = if (isFlipped) 180f else 0f
         rotationAnim.animateTo(
             targetValue = target,
             animationSpec = tween(durationMillis = 700)

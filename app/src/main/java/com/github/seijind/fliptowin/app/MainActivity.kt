@@ -6,14 +6,13 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import com.github.seijind.fliptowin.FlipToWinUiCardData
 import com.github.seijind.fliptowin.FlipToWinContent
 import com.github.seijind.fliptowin.FlipToWinScreen
-import com.github.seijind.fliptowin.FlipToWinUiItem
 import com.github.seijind.fliptowin.FlipToWinUiState
 import com.github.seijind.fliptowin.app.ui.theme.FlipToWinTheme
 
@@ -34,12 +33,13 @@ class MainActivity : ComponentActivity() {
 @Composable
 private fun LoyaltyDailyRewardsContentPreview() {
     val mockItems = remember {
-        mutableStateListOf<FlipToWinUiItem>().apply {
+        mutableStateListOf<FlipToWinUiCardData>().apply {
             repeat(9) {
                 add(
-                    FlipToWinUiItem(
-                        brush = mutableStateOf(Brush.verticalGradient(colors = listOf(Color(0xFFEBD197), Color(0xFFA2790D)))),
-                        clickable = mutableStateOf(true)
+                    FlipToWinUiCardData(
+                        type = 1,
+                        image = "url_back_icon",
+                        Brush.verticalGradient(colors = listOf(Color(0xFFEBD197), Color(0xFFA2790D)))
                     )
                 )
             }
