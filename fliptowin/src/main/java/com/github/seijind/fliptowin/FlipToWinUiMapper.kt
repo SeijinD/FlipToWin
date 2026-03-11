@@ -41,7 +41,7 @@ class FlipToWinUiMapper {
     /**
      * Reveals the remaining cards at the end of the game
      */
-    operator fun invoke(wonRewardType: Int?, items: List<FlipToWinUiItem>, rewards: List<FlipToWinUiItem>) {
+    fun assignRemainingRewards(wonRewardType: Int?, items: List<FlipToWinUiItem>, rewards: List<FlipToWinUiItem>) {
         var remainingCount = items.count { it.type.value == null }
         val mutableContent = rewards.toMutableList()
         val finalContent = mutableListOf<FlipToWinUiItem>()

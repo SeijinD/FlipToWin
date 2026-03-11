@@ -143,7 +143,7 @@ class FlipToWinViewModel : ViewModel() {
             }
 
             delay(350)
-            mapper(wonReward.type.value ?: 0, _uiState.value.items, _uiState.value.rewards)
+            mapper.assignRemainingRewards(wonReward.type.value ?: 0, _uiState.value.items, _uiState.value.rewards)
 
             delay(650) 
 
