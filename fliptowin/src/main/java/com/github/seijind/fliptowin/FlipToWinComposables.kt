@@ -66,26 +66,31 @@ internal fun LoyaltyFlipGrid(
             else -> floor((size.value.height - 16.dp.toPx()).div(3)).toDp()
         }
     }
-    FlowRow(
+
+    Box(
         modifier = modifier
             .fillMaxSize()
-            .padding(vertical = 8.dp)
             .onSizeChanged { intSize -> size.value = intSize },
-        maxItemsInEachRow = 3,
-        maxLines = 3,
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-        horizontalArrangement = Arrangement.Center,
+        contentAlignment = Alignment.Center
     ) {
-        uiState.items.forEach { cardItem ->
-            LoyaltyFlipCard(
-                item = cardItem,
-                onCardClicked = { item -> uiState.onCardClicked(item) },
-                onMoveInCenterAnimationEnded = uiState.onMoveInCenterAnimationEnded,
-                modifier = Modifier
-                    .width(width)
-                    .aspectRatio(1f)
-                    .padding(horizontal = 4.dp),
-            )
+        FlowRow(
+            modifier = Modifier.padding(vertical = 8.dp),
+            maxItemsInEachRow = 3,
+            maxLines = 3,
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalArrangement = Arrangement.Center,
+        ) {
+            uiState.items.forEach { cardItem ->
+                LoyaltyFlipCard(
+                    item = cardItem,
+                    onCardClicked = { item -> uiState.onCardClicked(item) },
+                    onMoveInCenterAnimationEnded = uiState.onMoveInCenterAnimationEnded,
+                    modifier = Modifier
+                        .width(width)
+                        .aspectRatio(1f)
+                        .padding(horizontal = 4.dp),
+                )
+            }
         }
     }
 }
@@ -129,18 +134,6 @@ private fun LoyaltyFlipCard(
                 cameraDistance = 12 * density.density
             }
             .clip(RoundedCornerShape(8.dp))
-            .background(
-                brush = Brush.linearGradient(
-                    listOf(
-                        Color(0xFFEBD197),
-                        Color(0xFFB48811),
-                        Color(0xFFA2790D),
-                        Color(0xFFBB9B49),
-                    )
-                ),
-                shape = RoundedCornerShape(8.dp)
-            )
-            .padding(all = 2.dp)
             .background(
                 brush = item.brush.value ?: Brush.verticalGradient(colors = listOf(Color.White, Color.White)),
                 shape = RoundedCornerShape(8.dp)
