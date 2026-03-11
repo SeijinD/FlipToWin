@@ -41,6 +41,7 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
@@ -107,15 +108,10 @@ private fun FlipToWinCard(
     modifier: Modifier = Modifier,
 ) {
     val density = LocalDensity.current
-    val context = LocalContext.current
+    val screenSize = LocalWindowInfo.current.containerSize
 
     val cardPosition = remember { mutableStateOf(Offset.Zero) }
     val cardSize = remember { mutableIntStateOf(0) }
-
-    val screenSize = remember {
-        val metrics = context.resources.displayMetrics
-        IntSize(metrics.widthPixels, metrics.heightPixels)
-    }
 
     val wiggleAnim by rememberWiggleAnim(item.isWiggling)
     val scaleAnim by rememberScaleAnim(item.isScaling)
