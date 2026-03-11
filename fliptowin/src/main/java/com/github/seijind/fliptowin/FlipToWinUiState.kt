@@ -2,6 +2,7 @@ package com.github.seijind.fliptowin
 
 import android.graphics.Bitmap
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
@@ -11,6 +12,7 @@ data class FlipToWinUiState(
     val items: SnapshotStateList<FlipToWinUiItem> = mutableStateListOf(),
     val rewards: SnapshotStateList<FlipToWinUiItem> = mutableStateListOf(),
     val winRewardType: MutableState<Int?> = mutableStateOf(null),
+    val wiggleDelay: MutableState<Long> = mutableLongStateOf(3000L),
     val isGameActive: MutableState<Boolean> = mutableStateOf(false),
     val showConfigErrorDialog: MutableState<Int?> = mutableStateOf(null),
     val onCardClicked: (FlipToWinUiItem) -> Unit,

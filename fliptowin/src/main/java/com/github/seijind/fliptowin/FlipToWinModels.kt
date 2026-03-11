@@ -9,12 +9,26 @@ sealed class FlipToWinResult {
     data class Error(val message: String, val code: Int = 0) : FlipToWinResult()
 }
 
+/**
+ * The full response from the API
+ */
 data class FlipToWinResponse(
     val winRewardType: Int?,
-    val rewardsConfig: List<FlipToWinRewardType>,
-    val cardBackConfig: FlipToWinRewardType
+    val rewards: List<FlipToWinRewardType>,
+    val config: FlipToWinConfig
 )
 
+/**
+ * General game configuration
+ */
+data class FlipToWinConfig(
+    val cardBack: FlipToWinRewardType,
+    val wiggleDelayMillis: Long = 3000L
+)
+
+/**
+ * Visual data for rewards and card back
+ */
 data class FlipToWinRewardType(
     val type: Int,
     val startColor: String,
@@ -22,6 +36,9 @@ data class FlipToWinRewardType(
     val imgHistory: String,
 )
 
+/**
+ * Helper to convert config to Brush
+ */
 fun FlipToWinRewardType.toBrush(): Brush {
     return Brush.linearGradient(
         colors = listOf(

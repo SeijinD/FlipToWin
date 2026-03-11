@@ -34,12 +34,15 @@ class FlipToWinViewModel : ViewModel() {
             val mockResult: FlipToWinResult = FlipToWinResult.Success(
                 response = FlipToWinResponse(
                     winRewardType = 1,
-                    rewardsConfig = listOf(
+                    rewards = listOf(
                         FlipToWinRewardType(1, "#FF5722", "#E64A19", "url_points"),
                         FlipToWinRewardType(2, "#2196F3", "#1976D2", "url_gift"),
                         FlipToWinRewardType(13, "#9E9E9E", "#616161", "url_lost")
                     ),
-                    cardBackConfig = FlipToWinRewardType(0, "#EBD197", "#A2790D", "url_back_icon")
+                    config = FlipToWinConfig(
+                        cardBack = FlipToWinRewardType(0, "#EBD197", "#A2790D", "url_back_icon"),
+                        wiggleDelayMillis = 3000L
+                    )
                 )
             )
 
@@ -47,7 +50,7 @@ class FlipToWinViewModel : ViewModel() {
                 is FlipToWinResult.Success -> {
                     val data = mockResult.response
 
-                    if (data.winRewardType == null || data.rewardsConfig.isEmpty()) {
+                    if (data.winRewardType == null || data.rewards.isEmpty()) {
                         _uiState.value.showConfigErrorDialog.value = CONFIGURATION_ERROR_CODE
                         return@launch
                     }
@@ -55,6 +58,7 @@ class FlipToWinViewModel : ViewModel() {
                     val mappedData = mapper.mapResponse(data)
 
                     _uiState.value.winRewardType.value = mappedData.winRewardType
+                    _uiState.value.wiggleDelay.value = mappedData.wiggleDelay
 
                     _uiState.value.rewards.clear()
                     _uiState.value.rewards.addAll(mappedData.rewards)
@@ -74,7 +78,7 @@ class FlipToWinViewModel : ViewModel() {
 
     private fun startWiggleWithDelay() {
         wiggleJob = viewModelScope.launch {
-            delay(3000)
+            delay(_uiState.value.wiggleDelay.value)
             _uiState.value.items.forEach { item -> item.isWiggling.value = true }
         }
     }
