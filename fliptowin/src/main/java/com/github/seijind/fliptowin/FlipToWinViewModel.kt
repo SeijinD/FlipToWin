@@ -125,8 +125,8 @@ class FlipToWinViewModel : ViewModel() {
         viewModelScope.launch {
             delay(500)
             item.isFlipped.value = true
-            delay(300)
 
+            delay(350) 
             item.image.value = wonReward.image.value
             item.bitmap.value = wonReward.bitmap.value
             item.brush.value = wonReward.brush.value
@@ -142,10 +142,11 @@ class FlipToWinViewModel : ViewModel() {
                     card.isFlipped.value = true
                 }
             }
-            delay(250)
+
+            delay(350)
             mapper(wonReward.type.value ?: 0, _uiState.value.items, _uiState.value.rewards)
 
-            delay(1000)
+            delay(650) 
 
             if (!_uiState.value.config.value.revealAllAtEnd) {
                 _uiState.value.items.forEach { card ->
@@ -153,7 +154,8 @@ class FlipToWinViewModel : ViewModel() {
                         card.isFlipped.value = false
                     }
                 }
-                delay(500) 
+
+                delay(350)
                 _uiState.value.items.forEach { card ->
                     if (!card.isSelected.value) {
                         card.image.value = _uiState.value.config.value.cardBackImage
