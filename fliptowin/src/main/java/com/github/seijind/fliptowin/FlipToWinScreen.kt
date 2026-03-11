@@ -10,6 +10,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 fun FlipToWinScreen(
     viewModel: FlipToWinViewModel,
     onResult: (Int) -> Unit = {},
+    cardContentDescription: String = "Game card",
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -23,6 +24,7 @@ fun FlipToWinScreen(
         uiState = uiState,
         onCardClicked = viewModel::onCardClicked,
         onMoveInCenterAnimationEnded = viewModel::onMoveInCenterAnimationEnded,
+        cardContentDescription = cardContentDescription,
     )
 }
 
@@ -31,12 +33,14 @@ fun FlipToWinContent(
     uiState: FlipToWinUiState,
     onCardClicked: (Int) -> Unit,
     onMoveInCenterAnimationEnded: (Int) -> Unit,
+    cardContentDescription: String = "Game card",
     modifier: Modifier = Modifier,
 ) {
     FlipToWinGrid(
         uiState = uiState,
         onCardClicked = onCardClicked,
         onMoveInCenterAnimationEnded = onMoveInCenterAnimationEnded,
+        cardContentDescription = cardContentDescription,
         modifier = modifier,
     )
 }

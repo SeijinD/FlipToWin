@@ -60,6 +60,7 @@ internal fun FlipToWinGrid(
     uiState: FlipToWinUiState,
     onCardClicked: (Int) -> Unit,
     onMoveInCenterAnimationEnded: (Int) -> Unit,
+    cardContentDescription: String,
     modifier: Modifier = Modifier,
 ) {
     val density = LocalDensity.current
@@ -94,6 +95,7 @@ internal fun FlipToWinGrid(
                     item = item,
                     onCardClicked = { onCardClicked(index) },
                     onMoveInCenterAnimationEnded = { onMoveInCenterAnimationEnded(index) },
+                    contentDescription = "$cardContentDescription ${index + 1}",
                     modifier = Modifier
                         .width(width)
                         .aspectRatio(1f)
@@ -109,6 +111,7 @@ private fun FlipToWinCard(
     item: FlipToWinUiCardData,
     onCardClicked: () -> Unit,
     onMoveInCenterAnimationEnded: () -> Unit,
+    contentDescription: String,
     modifier: Modifier = Modifier,
 ) {
     val density = LocalDensity.current
@@ -150,6 +153,7 @@ private fun FlipToWinCard(
             image = item.image,
             bitmap = item.bitmap,
             isFlipped = item.isFlipped,
+            contentDescription = contentDescription,
         )
     }
 }
@@ -159,6 +163,7 @@ private fun FlipToWinCardImageItem(
     image: String,
     bitmap: Bitmap?,
     isFlipped: Boolean,
+    contentDescription: String,
 ) {
     val modifier = Modifier
         .fillMaxSize(if (bitmap == null) 0.5f else 1f)
@@ -169,14 +174,14 @@ private fun FlipToWinCardImageItem(
     if (bitmap == null) {
         AsyncImage(
             model = image.loadImageWithCrossfade(),
-            contentDescription = null,
+            contentDescription = contentDescription,
             contentScale = ContentScale.Crop,
             modifier = modifier,
         )
     } else {
         Image(
             bitmap = bitmap.asImageBitmap(),
-            contentDescription = null,
+            contentDescription = contentDescription,
             modifier = modifier
         )
     }
