@@ -11,7 +11,7 @@ class FlipToWinUiMapper {
         val cardBackBrush = response.config.cardBack.toBrush()
         val cardBackIcon = response.config.cardBack.imgHistory
 
-        val items = (0..8).map {
+        val items = (0 until response.config.cardCount).map {
             FlipToWinUiItem(
                 type = mutableStateOf(null),
                 brush = mutableStateOf(cardBackBrush),
@@ -33,7 +33,8 @@ class FlipToWinUiMapper {
             rewards = rewards,
             winRewardType = response.winRewardType,
             wiggleDelay = response.config.wiggleDelayMillis,
-            revealAllAtEnd = response.config.revealAllAtEnd
+            revealAllAtEnd = response.config.revealAllAtEnd,
+            gridColumns = response.config.gridColumns,
         )
     }
 
@@ -41,7 +42,7 @@ class FlipToWinUiMapper {
      * Reveals the remaining cards at the end of the game
      */
     operator fun invoke(wonRewardType: Int?, items: List<FlipToWinUiItem>, rewards: List<FlipToWinUiItem>) {
-        var remainingCount = 8
+        var remainingCount = items.count { it.type.value == null }
         val mutableContent = rewards.toMutableList()
         val finalContent = mutableListOf<FlipToWinUiItem>()
 
@@ -83,4 +84,5 @@ data class FlipToWinUiStateData(
     val winRewardType: Int?,
     val wiggleDelay: Long,
     val revealAllAtEnd: Boolean,
+    val gridColumns: Int = 3,
 )

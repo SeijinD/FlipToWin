@@ -22,7 +22,8 @@ data class FlipToWinUiConfig(
     val wiggleDelay: Long = 3000L,
     val revealAllAtEnd: Boolean = true,
     val cardBackBrush: Brush? = null,
-    val cardBackImage: String = ""
+    val cardBackImage: String = "",
+    val gridColumns: Int = 3,
 )
 
 data class FlipToWinUiItem(

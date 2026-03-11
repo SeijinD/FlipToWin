@@ -62,12 +62,14 @@ internal fun FlipToWinGrid(
 ) {
     val density = LocalDensity.current
     val size = remember { mutableStateOf(IntSize(0, 0)) }
+    val columns = uiState.config.value.gridColumns
+    val rows = if (columns > 0) (uiState.items.size + columns - 1) / columns else 1
 
-    val width = remember(density, size.value) {
+    val width = remember(density, size.value, columns) {
         with(density) {
             when {
-                size.value.width <= size.value.height -> floor((size.value.width - 16.dp.toPx()).div(3)).toDp()
-                else -> floor((size.value.height - 16.dp.toPx()).div(3)).toDp()
+                size.value.width <= size.value.height -> floor((size.value.width - 16.dp.toPx()).div(columns)).toDp()
+                else -> floor((size.value.height - 16.dp.toPx()).div(columns)).toDp()
             }
         }
     }
@@ -80,8 +82,8 @@ internal fun FlipToWinGrid(
     ) {
         FlowRow(
             modifier = Modifier.padding(vertical = 8.dp),
-            maxItemsInEachRow = 3,
-            maxLines = 3,
+            maxItemsInEachRow = columns,
+            maxLines = rows,
             verticalArrangement = Arrangement.spacedBy(8.dp),
             horizontalArrangement = Arrangement.Center,
         ) {

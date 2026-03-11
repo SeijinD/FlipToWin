@@ -1,7 +1,5 @@
 package com.github.seijind.fliptowin
 
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Job
@@ -64,7 +62,8 @@ class FlipToWinViewModel : ViewModel() {
                         wiggleDelay = mappedData.wiggleDelay,
                         revealAllAtEnd = mappedData.revealAllAtEnd,
                         cardBackBrush = data.config.cardBack.toBrush(),
-                        cardBackImage = data.config.cardBack.imgHistory
+                        cardBackImage = data.config.cardBack.imgHistory,
+                        gridColumns = mappedData.gridColumns,
                     )
 
                     _uiState.value.rewards.clear()
