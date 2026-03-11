@@ -14,8 +14,6 @@ data class FlipToWinUiState(
     val config: MutableState<FlipToWinUiConfig> = mutableStateOf(FlipToWinUiConfig()),
     val isGameActive: MutableState<Boolean> = mutableStateOf(false),
     val showConfigErrorDialog: MutableState<Int?> = mutableStateOf(null),
-    val onCardClicked: (Int) -> Unit,
-    val onMoveInCenterAnimationEnded: (Int) -> Unit,
 )
 
 data class FlipToWinUiConfig(

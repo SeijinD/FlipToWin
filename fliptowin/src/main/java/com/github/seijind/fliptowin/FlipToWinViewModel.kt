@@ -13,10 +13,7 @@ class FlipToWinViewModel : ViewModel() {
 
     private val mapper = FlipToWinUiMapper()
 
-    private val _uiState = MutableStateFlow(FlipToWinUiState(
-        onCardClicked = ::onCardClicked,
-        onMoveInCenterAnimationEnded = ::onMoveInCenterAnimationEnded
-    ))
+    private val _uiState = MutableStateFlow(FlipToWinUiState())
     val uiState: StateFlow<FlipToWinUiState> = _uiState.asStateFlow()
 
     private var wiggleJob: Job? = null
@@ -89,7 +86,7 @@ class FlipToWinViewModel : ViewModel() {
         }
     }
 
-    private fun onCardClicked(index: Int) {
+    fun onCardClicked(index: Int) {
         viewModelScope.launch {
             if (_uiState.value.items.getOrNull(index) == null) return@launch
             if (!_uiState.value.isGameActive.value) {
@@ -121,7 +118,7 @@ class FlipToWinViewModel : ViewModel() {
         }
     }
 
-    private fun onMoveInCenterAnimationEnded(index: Int) {
+    fun onMoveInCenterAnimationEnded(index: Int) {
         val item = _uiState.value.items.getOrNull(index) ?: return
         val wonReward = _uiState.value.rewards.find { it.type == item.type } ?: return
 

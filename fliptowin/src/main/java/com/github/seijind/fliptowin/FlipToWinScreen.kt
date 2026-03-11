@@ -12,16 +12,24 @@ fun FlipToWinScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    FlipToWinContent(uiState = uiState)
+    FlipToWinContent(
+        uiState = uiState,
+        onCardClicked = viewModel::onCardClicked,
+        onMoveInCenterAnimationEnded = viewModel::onMoveInCenterAnimationEnded,
+    )
 }
 
 @Composable
 fun FlipToWinContent(
     uiState: FlipToWinUiState,
+    onCardClicked: (Int) -> Unit,
+    onMoveInCenterAnimationEnded: (Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     FlipToWinGrid(
         uiState = uiState,
+        onCardClicked = onCardClicked,
+        onMoveInCenterAnimationEnded = onMoveInCenterAnimationEnded,
         modifier = modifier,
     )
 }

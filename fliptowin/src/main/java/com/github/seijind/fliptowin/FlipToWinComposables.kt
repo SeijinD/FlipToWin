@@ -58,6 +58,8 @@ import kotlin.math.roundToInt
 @Composable
 internal fun FlipToWinGrid(
     uiState: FlipToWinUiState,
+    onCardClicked: (Int) -> Unit,
+    onMoveInCenterAnimationEnded: (Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val density = LocalDensity.current
@@ -90,8 +92,8 @@ internal fun FlipToWinGrid(
             uiState.items.forEachIndexed { index, item ->
                 FlipToWinCard(
                     item = item,
-                    onCardClicked = { uiState.onCardClicked(index) },
-                    onMoveInCenterAnimationEnded = { uiState.onMoveInCenterAnimationEnded(index) },
+                    onCardClicked = { onCardClicked(index) },
+                    onMoveInCenterAnimationEnded = { onMoveInCenterAnimationEnded(index) },
                     modifier = Modifier
                         .width(width)
                         .aspectRatio(1f)
