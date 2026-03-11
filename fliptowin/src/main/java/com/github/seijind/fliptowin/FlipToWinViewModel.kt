@@ -2,11 +2,14 @@ package com.github.seijind.fliptowin
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.collections.immutable.mutate
+import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class FlipToWinViewModel : ViewModel() {
@@ -47,33 +50,31 @@ class FlipToWinViewModel : ViewModel() {
                     val data = mockResult.response
 
                     if (data.winRewardType == null || data.rewards.isEmpty()) {
-                        _uiState.value.showConfigErrorDialog.value = CONFIGURATION_ERROR_CODE
+                        _uiState.update { it.copy(showConfigErrorDialog = CONFIGURATION_ERROR_CODE) }
                         return@launch
                     }
 
                     val mappedData = mapper.mapResponse(data)
 
-                    _uiState.value.winRewardType.value = mappedData.winRewardType
-                    
-                    _uiState.value.config.value = FlipToWinUiConfig(
-                        wiggleDelay = mappedData.wiggleDelay,
-                        revealAllAtEnd = mappedData.revealAllAtEnd,
-                        cardBackBrush = data.config.cardBack.toBrush(),
-                        cardBackImage = data.config.cardBack.imgHistory,
-                        gridColumns = mappedData.gridColumns,
-                    )
-
-                    _uiState.value.rewards.clear()
-                    _uiState.value.rewards.addAll(mappedData.rewards)
-
-                    _uiState.value.items.clear()
-                    _uiState.value.items.addAll(mappedData.items)
+                    _uiState.update {
+                        it.copy(
+                            winRewardType = mappedData.winRewardType,
+                            config = FlipToWinUiConfig(
+                                wiggleDelay = mappedData.wiggleDelay,
+                                revealAllAtEnd = mappedData.revealAllAtEnd,
+                                cardBackBrush = data.config.cardBack.toBrush(),
+                                cardBackImage = data.config.cardBack.imgHistory,
+                                gridColumns = mappedData.gridColumns,
+                            ),
+                            rewards = mappedData.rewards.toPersistentList(),
+                            items = mappedData.items.toPersistentList(),
+                        )
+                    }
 
                     startWiggleWithDelay()
                 }
                 is FlipToWinResult.Error -> {
-                    _uiState.value.showConfigErrorDialog.value = mockResult.code
-                    return@launch
+                    _uiState.update { it.copy(showConfigErrorDialog = mockResult.code) }
                 }
             }
         }
@@ -81,7 +82,7 @@ class FlipToWinViewModel : ViewModel() {
 
     private fun startWiggleWithDelay() {
         wiggleJob = viewModelScope.launch {
-            delay(_uiState.value.config.value.wiggleDelay)
+            delay(_uiState.value.config.wiggleDelay)
             updateAllCards { it.copy(isWiggling = true) }
         }
     }
@@ -89,31 +90,24 @@ class FlipToWinViewModel : ViewModel() {
     fun onCardClicked(index: Int) {
         viewModelScope.launch {
             if (_uiState.value.items.getOrNull(index) == null) return@launch
-            if (!_uiState.value.isGameActive.value) {
-                _uiState.value.isGameActive.value = true
+            if (!_uiState.value.isGameActive) {
+                _uiState.update { it.copy(isGameActive = true) }
                 wiggleJob?.cancel()
                 updateAllCards { it.copy(isWiggling = false, clickable = false) }
 
                 val claimSuccess = true
                 if (!claimSuccess) {
                     updateAllCards { it.copy(clickable = true) }
-                    _uiState.value.isGameActive.value = false
+                    _uiState.update { it.copy(isGameActive = false) }
                     startWiggleWithDelay()
                     return@launch
                 }
 
-                val winType = _uiState.value.winRewardType.value
-                // Re-read from list after updateAllCards — the captured `item` is stale
-                _uiState.value.items[index] = _uiState.value.items[index].copy(
-                    isSelected = true,
-                    type = winType ?: _uiState.value.items[index].type,
-                )
+                val winType = _uiState.value.winRewardType
+                updateCard(index) { it.copy(isSelected = true, type = winType ?: it.type) }
 
                 delay(BEFORE_SELECTED_CARD_MOVE_MS)
-                _uiState.value.items[index] = _uiState.value.items[index].copy(
-                    isScaling = true,
-                    moveInCenter = true,
-                )
+                updateCard(index) { it.copy(isScaling = true, moveInCenter = true) }
             }
         }
     }
@@ -124,21 +118,20 @@ class FlipToWinViewModel : ViewModel() {
 
         viewModelScope.launch {
             delay(BEFORE_SELECTED_CARD_FLIP_MS)
-            _uiState.value.items[index] = _uiState.value.items[index].copy(isFlipped = true)
+            updateCard(index) { it.copy(isFlipped = true) }
 
             // Wait for card to reach 90° (midpoint of flip) before swapping the image
             delay(CARD_FLIP_MIDPOINT_MS)
-            _uiState.value.items[index] = _uiState.value.items[index].copy(
-                image = wonReward.image,
-                bitmap = wonReward.bitmap,
-                brush = wonReward.brush,
-            )
+            updateCard(index) {
+                it.copy(
+                    image = wonReward.image,
+                    bitmap = wonReward.bitmap,
+                    brush = wonReward.brush,
+                )
+            }
 
             delay(SHOW_RESULT_MS)
-            _uiState.value.items[index] = _uiState.value.items[index].copy(
-                isScaling = false,
-                moveInCenter = false,
-            )
+            updateCard(index) { it.copy(isScaling = false, moveInCenter = false) }
 
             delay(BEFORE_REVEAL_ALL_MS)
             updateAllCards { card -> if (!card.isSelected) card.copy(isFlipped = true) else card }
@@ -150,18 +143,17 @@ class FlipToWinViewModel : ViewModel() {
                 _uiState.value.items,
                 _uiState.value.rewards,
             )
-            _uiState.value.items.clear()
-            _uiState.value.items.addAll(assignedItems)
+            _uiState.update { it.copy(items = assignedItems.toPersistentList()) }
 
             delay(AFTER_REVEAL_ALL_MS)
 
-            if (!_uiState.value.config.value.revealAllAtEnd) {
+            if (!_uiState.value.config.revealAllAtEnd) {
                 updateAllCards { card -> if (!card.isSelected) card.copy(isFlipped = false) else card }
 
                 // Wait for cards to reach 90° before resetting their visuals to card back
                 delay(CARD_FLIP_MIDPOINT_MS)
-                val cardBackImage = _uiState.value.config.value.cardBackImage
-                val cardBackBrush = _uiState.value.config.value.cardBackBrush
+                val cardBackImage = _uiState.value.config.cardBackImage
+                val cardBackBrush = _uiState.value.config.cardBackBrush
                 updateAllCards { card ->
                     if (!card.isSelected) card.copy(
                         image = cardBackImage,
@@ -172,14 +164,28 @@ class FlipToWinViewModel : ViewModel() {
             }
 
             delay(BEFORE_GAME_RESET_MS)
-            _uiState.value.isGameActive.value = false
+            _uiState.update { it.copy(isGameActive = false) }
         }
     }
 
-    /** Applies [transform] to every card in the items list via index-based replacement. */
+    /** Applies [transform] to every card and emits a new state. */
     private fun updateAllCards(transform: (FlipToWinUiCardData) -> FlipToWinUiCardData) {
-        for (i in _uiState.value.items.indices) {
-            _uiState.value.items[i] = transform(_uiState.value.items[i])
+        _uiState.update { state ->
+            state.copy(
+                items = state.items.mutate { list ->
+                    for (i in list.indices) {
+                        list[i] = transform(list[i])
+                    }
+                }
+            )
+        }
+    }
+
+    /** Applies [transform] to the card at [index] and emits a new state. */
+    private fun updateCard(index: Int, transform: (FlipToWinUiCardData) -> FlipToWinUiCardData) {
+        _uiState.update { state ->
+            if (index !in state.items.indices) return@update state
+            state.copy(items = state.items.set(index, transform(state.items[index])))
         }
     }
 

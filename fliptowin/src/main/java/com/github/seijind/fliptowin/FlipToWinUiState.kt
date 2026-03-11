@@ -1,21 +1,22 @@
 package com.github.seijind.fliptowin
 
 import android.graphics.Bitmap
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Brush
+import kotlinx.collections.immutable.PersistentList
+import kotlinx.collections.immutable.persistentListOf
 
+@Immutable
 data class FlipToWinUiState(
-    val items: SnapshotStateList<FlipToWinUiCardData> = mutableStateListOf(),
-    val rewards: SnapshotStateList<FlipToWinUiCardData> = mutableStateListOf(),
-    val winRewardType: MutableState<Int?> = mutableStateOf(null),
-    val config: MutableState<FlipToWinUiConfig> = mutableStateOf(FlipToWinUiConfig()),
-    val isGameActive: MutableState<Boolean> = mutableStateOf(false),
-    val showConfigErrorDialog: MutableState<Int?> = mutableStateOf(null),
+    val items: PersistentList<FlipToWinUiCardData> = persistentListOf(),
+    val rewards: PersistentList<FlipToWinUiCardData> = persistentListOf(),
+    val winRewardType: Int? = null,
+    val config: FlipToWinUiConfig = FlipToWinUiConfig(),
+    val isGameActive: Boolean = false,
+    val showConfigErrorDialog: Int? = null,
 )
 
+@Immutable
 data class FlipToWinUiConfig(
     val wiggleDelay: Long = 3000L,
     val revealAllAtEnd: Boolean = true,
@@ -24,6 +25,7 @@ data class FlipToWinUiConfig(
     val gridColumns: Int = 3,
 )
 
+@Immutable
 data class FlipToWinUiCardData(
     // --- Visual content ---
     val type: Int? = null,

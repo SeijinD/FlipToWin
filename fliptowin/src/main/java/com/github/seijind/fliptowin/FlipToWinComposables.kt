@@ -64,7 +64,7 @@ internal fun FlipToWinGrid(
 ) {
     val density = LocalDensity.current
     val size = remember { mutableStateOf(IntSize(0, 0)) }
-    val columns = uiState.config.value.gridColumns
+    val columns = uiState.config.gridColumns
     val rows = if (columns > 0) (uiState.items.size + columns - 1) / columns else 1
 
     val width = remember(density, size.value, columns) {

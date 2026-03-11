@@ -5,16 +5,15 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
-import com.github.seijind.fliptowin.FlipToWinUiCardData
 import com.github.seijind.fliptowin.FlipToWinContent
 import com.github.seijind.fliptowin.FlipToWinScreen
+import com.github.seijind.fliptowin.FlipToWinUiCardData
 import com.github.seijind.fliptowin.FlipToWinUiState
 import com.github.seijind.fliptowin.app.ui.theme.FlipToWinTheme
+import kotlinx.collections.immutable.toPersistentList
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -32,27 +31,21 @@ class MainActivity : ComponentActivity() {
 @Preview(showBackground = true, locale = "en")
 @Composable
 private fun LoyaltyDailyRewardsContentPreview() {
-    val mockItems = remember {
-        mutableStateListOf<FlipToWinUiCardData>().apply {
-            repeat(9) {
-                add(
-                    FlipToWinUiCardData(
-                        type = 1,
-                        image = "url_back_icon",
-                        Brush.verticalGradient(colors = listOf(Color(0xFFEBD197), Color(0xFFA2790D)))
-                    )
-                )
-            }
-        }
-    }
+    val mockItems = List(9) {
+        FlipToWinUiCardData(
+            type = 1,
+            image = "url_back_icon",
+            brush = Brush.verticalGradient(colors = listOf(Color(0xFFEBD197), Color(0xFFA2790D))),
+        )
+    }.toPersistentList()
 
-    val mockUiState = FlipToWinUiState(
-        items = mockItems,
-        onCardClicked = {},
-        onMoveInCenterAnimationEnded = {}
-    )
+    val mockUiState = FlipToWinUiState(items = mockItems)
 
     FlipToWinTheme {
-        FlipToWinContent(uiState = mockUiState)
+        FlipToWinContent(
+            uiState = mockUiState,
+            onCardClicked = {},
+            onMoveInCenterAnimationEnded = {},
+        )
     }
 }
