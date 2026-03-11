@@ -73,7 +73,7 @@ internal fun LoyaltyFlipGrid(
             .onSizeChanged { intSize -> size.value = intSize },
         maxItemsInEachRow = 3,
         maxLines = 3,
-        verticalArrangement = Arrangement.spacedBy(space = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
         horizontalArrangement = Arrangement.Center,
     ) {
         uiState.items.forEach { cardItem ->

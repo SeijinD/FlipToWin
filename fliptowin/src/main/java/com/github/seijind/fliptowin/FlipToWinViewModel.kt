@@ -43,25 +43,31 @@ class FlipToWinViewModel : ViewModel() {
                 )
             )
 
-            if (mockResult is FlipToWinResult.Success) {
-                val data = mockResult.response
-                
-                if (data.winRewardType == null || data.rewardsConfig.isEmpty()) {
-                    _uiState.value.showConfigErrorDialog.value = CONFIGURATION_ERROR_CODE
+            when (mockResult) {
+                is FlipToWinResult.Success -> {
+                    val data = mockResult.response
+
+                    if (data.winRewardType == null || data.rewardsConfig.isEmpty()) {
+                        _uiState.value.showConfigErrorDialog.value = CONFIGURATION_ERROR_CODE
+                        return@launch
+                    }
+
+                    val mappedData = mapper.mapResponse(data)
+
+                    _uiState.value.winRewardType.value = mappedData.winRewardType
+
+                    _uiState.value.rewards.clear()
+                    _uiState.value.rewards.addAll(mappedData.rewards)
+
+                    _uiState.value.items.clear()
+                    _uiState.value.items.addAll(mappedData.items)
+
+                    startWiggleWithDelay()
+                }
+                is FlipToWinResult.Error -> {
+                    _uiState.value.showConfigErrorDialog.value = mockResult.code
                     return@launch
                 }
-
-                val mappedData = mapper.mapResponse(data)
-
-                _uiState.value.winRewardType.value = mappedData.winRewardType
-                
-                _uiState.value.rewards.clear()
-                _uiState.value.rewards.addAll(mappedData.rewards)
-
-                _uiState.value.items.clear()
-                _uiState.value.items.addAll(mappedData.items)
-
-                startWiggleWithDelay()
             }
         }
     }
