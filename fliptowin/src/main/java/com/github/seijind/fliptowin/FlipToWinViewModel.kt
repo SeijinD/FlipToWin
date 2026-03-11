@@ -41,7 +41,8 @@ class FlipToWinViewModel : ViewModel() {
                     ),
                     config = FlipToWinConfig(
                         cardBack = FlipToWinRewardType(0, "#EBD197", "#A2790D", "url_back_icon"),
-                        wiggleDelayMillis = 3000L
+                        wiggleDelayMillis = 3000L,
+                        revealAllAtEnd = false,
                     )
                 )
             )
@@ -58,7 +59,13 @@ class FlipToWinViewModel : ViewModel() {
                     val mappedData = mapper.mapResponse(data)
 
                     _uiState.value.winRewardType.value = mappedData.winRewardType
-                    _uiState.value.wiggleDelay.value = mappedData.wiggleDelay
+                    
+                    _uiState.value.config.value = FlipToWinUiConfig(
+                        wiggleDelay = mappedData.wiggleDelay,
+                        revealAllAtEnd = mappedData.revealAllAtEnd,
+                        cardBackBrush = data.config.cardBack.toBrush(),
+                        cardBackImage = data.config.cardBack.imgHistory
+                    )
 
                     _uiState.value.rewards.clear()
                     _uiState.value.rewards.addAll(mappedData.rewards)
@@ -78,7 +85,7 @@ class FlipToWinViewModel : ViewModel() {
 
     private fun startWiggleWithDelay() {
         wiggleJob = viewModelScope.launch {
-            delay(_uiState.value.wiggleDelay.value)
+            delay(_uiState.value.config.value.wiggleDelay)
             _uiState.value.items.forEach { item -> item.isWiggling.value = true }
         }
     }
@@ -119,6 +126,8 @@ class FlipToWinViewModel : ViewModel() {
             delay(500)
             item.isFlipped.value = true
             delay(300)
+
+            item.image.value = wonReward.image.value
             item.bitmap.value = wonReward.bitmap.value
             item.brush.value = wonReward.brush.value
 
@@ -127,16 +136,30 @@ class FlipToWinViewModel : ViewModel() {
             item.moveInCenter.value = false
 
             delay(500)
-            _uiState.value.items.forEach { card -> card.isFlipped.value = true }
+            
+            _uiState.value.items.forEach { card ->
+                if (!card.isSelected.value) {
+                    card.isFlipped.value = true
+                }
+            }
             delay(250)
             mapper(wonReward.type.value ?: 0, _uiState.value.items, _uiState.value.rewards)
 
-            delay(1400)
-            _uiState.value.items.forEach { card ->
-                if (!card.isSelected.value) {
-                    card.isFlipped.value = false
-                    card.bitmap.value = null
-                    card.brush.value = Brush.verticalGradient(colors = listOf(Color.White, Color.Gray))
+            delay(1000)
+
+            if (!_uiState.value.config.value.revealAllAtEnd) {
+                _uiState.value.items.forEach { card ->
+                    if (!card.isSelected.value) {
+                        card.isFlipped.value = false
+                    }
+                }
+                delay(500) 
+                _uiState.value.items.forEach { card ->
+                    if (!card.isSelected.value) {
+                        card.image.value = _uiState.value.config.value.cardBackImage
+                        card.brush.value = _uiState.value.config.value.cardBackBrush
+                        card.bitmap.value = null
+                    }
                 }
             }
 

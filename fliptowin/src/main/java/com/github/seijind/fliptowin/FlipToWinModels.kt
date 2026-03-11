@@ -23,7 +23,8 @@ data class FlipToWinResponse(
  */
 data class FlipToWinConfig(
     val cardBack: FlipToWinRewardType,
-    val wiggleDelayMillis: Long = 3000L
+    val wiggleDelayMillis: Long = 3000L,
+    val revealAllAtEnd: Boolean = true,
 )
 
 /**

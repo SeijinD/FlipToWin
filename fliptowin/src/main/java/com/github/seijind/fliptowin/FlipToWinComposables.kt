@@ -142,7 +142,7 @@ private fun LoyaltyFlipCard(
         contentAlignment = Alignment.Center
     ) {
         LoyaltyFlipCardImageItem(
-            image = item.image,
+            image = item.image.value,
             bitmap = item.bitmap,
         )
     }

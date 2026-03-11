@@ -17,7 +17,7 @@ class FlipToWinUiMapper {
             FlipToWinUiItem(
                 type = mutableStateOf(null),
                 brush = mutableStateOf(cardBackBrush),
-                image = cardBackIcon,
+                image = mutableStateOf(cardBackIcon),
                 clickable = mutableStateOf(true)
             )
         }
@@ -27,7 +27,7 @@ class FlipToWinUiMapper {
             FlipToWinUiItem(
                 type = mutableStateOf(config.type),
                 brush = mutableStateOf(config.toBrush()),
-                image = config.imgHistory
+                image = mutableStateOf(config.imgHistory)
             )
         }
 
@@ -35,7 +35,8 @@ class FlipToWinUiMapper {
             items = items,
             rewards = rewards,
             winRewardType = response.winRewardType,
-            wiggleDelay = response.config.wiggleDelayMillis
+            wiggleDelay = response.config.wiggleDelayMillis,
+            revealAllAtEnd = response.config.revealAllAtEnd
         )
     }
 
@@ -86,5 +87,6 @@ data class FlipToWinUiStateData(
     val items: List<FlipToWinUiItem>,
     val rewards: List<FlipToWinUiItem>,
     val winRewardType: Int?,
-    val wiggleDelay: Long
+    val wiggleDelay: Long,
+    val revealAllAtEnd: Boolean,
 )
