@@ -18,10 +18,15 @@ data class FlipToWinUiState(
 
 @Immutable
 data class FlipToWinUiConfig(
+    /** Internal wiggle animation timing (defaults to value from API). */
     val wiggleDelay: Long = 3000L,
+    /** Whether to reveal unselected cards at the end of a round. */
     val revealAllAtEnd: Boolean = true,
+    /** Background brush for the card back. */
     val cardBackBrush: Brush? = null,
+    /** Optional image URL/asset for the card back. */
     val cardBackImage: String = "",
+    /** Number of columns in the grid. */
     val gridColumns: Int = 3,
 )
 

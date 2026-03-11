@@ -6,6 +6,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
+/**
+ * Main entry point for the FlipToWin game screen.
+ * Observes the [viewModel]'s state and handles the game result emission.
+ *
+ * @param viewModel The state owner for this game session.
+ * @param onResult Callback triggered once a prize is revealed. Receives the prize [Int] type.
+ * @param cardContentDescription Localized prefix for card accessibility (e.g., "Game card").
+ */
 @Composable
 fun FlipToWinScreen(
     viewModel: FlipToWinViewModel,
@@ -28,6 +36,15 @@ fun FlipToWinScreen(
     )
 }
 
+/**
+ * Stateless content version of the FlipToWin grid.
+ * Useful for custom screen structures or previews.
+ *
+ * @param uiState Current game state produced by the ViewModel.
+ * @param onCardClicked Triggered when a non-flipped card is tapped.
+ * @param onMoveInCenterAnimationEnded Triggered when the selected card reaches the center.
+ * @param cardContentDescription Localized prefix for card accessibility.
+ */
 @Composable
 fun FlipToWinContent(
     uiState: FlipToWinUiState,

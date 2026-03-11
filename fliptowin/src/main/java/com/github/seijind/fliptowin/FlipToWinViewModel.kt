@@ -15,6 +15,12 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+/**
+ * ViewModel responsible for orchestrating the FlipToWin game logic.
+ *
+ * It manages the immutable [FlipToWinUiState], handles one-time [resultEvent] emissions,
+ * and processes user interactions such as card clicks.
+ */
 class FlipToWinViewModel : ViewModel() {
 
     private val mapper = FlipToWinUiMapper()
@@ -28,8 +34,12 @@ class FlipToWinViewModel : ViewModel() {
     private var wiggleJob: Job? = null
 
     /**
-     * Entry point for the game. Call this after receiving the API response.
-     * Safe to call multiple times — each call resets the game state.
+     * Initializes the game with the provided [result].
+     *
+     * Call this after fetching data from your API. It cancels any pending
+     * animations and resets the game state before processing the new data.
+     *
+     * @param result The success or error result wrapping the API response.
      */
     fun init(result: FlipToWinResult) {
         wiggleJob?.cancel()
