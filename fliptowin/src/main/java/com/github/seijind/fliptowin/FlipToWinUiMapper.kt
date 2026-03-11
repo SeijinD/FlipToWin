@@ -47,7 +47,7 @@ class FlipToWinUiMapper {
 
         mutableContent.find { it.type.value == wonRewardType }?.let { mutableContent.remove(it) }
 
-        mutableContent.find { it.type.value == 13 }?.let {
+        mutableContent.find { it.type.value == LOSING_REWARD_TYPE }?.let {
             finalContent.add(it)
             mutableContent.remove(it)
             remainingCount--

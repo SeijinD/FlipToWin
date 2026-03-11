@@ -57,3 +57,4 @@ val String.convertToIntColor: Int
     }
 
 const val CONFIGURATION_ERROR_CODE = 1001
+const val LOSING_REWARD_TYPE = 0

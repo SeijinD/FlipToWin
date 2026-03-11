@@ -37,7 +37,7 @@ class FlipToWinViewModel : ViewModel() {
                     rewards = listOf(
                         FlipToWinRewardType(1, "#FF5722", "#E64A19", "url_points"),
                         FlipToWinRewardType(2, "#2196F3", "#1976D2", "url_gift"),
-                        FlipToWinRewardType(13, "#9E9E9E", "#616161", "url_lost")
+                        FlipToWinRewardType(0, "#9E9E9E", "#616161", "url_lost")
                     ),
                     config = FlipToWinConfig(
                         cardBack = FlipToWinRewardType(0, "#EBD197", "#A2790D", "url_back_icon"),
