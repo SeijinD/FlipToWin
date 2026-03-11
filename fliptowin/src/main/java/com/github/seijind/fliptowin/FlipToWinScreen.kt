@@ -26,7 +26,7 @@ fun FlipToWinContent(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
-        LoyaltyFlipGrid(
+        FlipToWinGrid(
             uiState = uiState,
         )
     }

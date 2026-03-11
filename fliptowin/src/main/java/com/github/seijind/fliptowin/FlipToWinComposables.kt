@@ -54,7 +54,7 @@ import kotlin.math.floor
 import kotlin.math.roundToInt
 
 @Composable
-internal fun LoyaltyFlipGrid(
+internal fun FlipToWinGrid(
     uiState: FlipToWinUiState,
     modifier: Modifier = Modifier,
 ) {
@@ -81,7 +81,7 @@ internal fun LoyaltyFlipGrid(
             horizontalArrangement = Arrangement.Center,
         ) {
             uiState.items.forEach { cardItem ->
-                LoyaltyFlipCard(
+                FlipToWinCard(
                     item = cardItem,
                     onCardClicked = { item -> uiState.onCardClicked(item) },
                     onMoveInCenterAnimationEnded = uiState.onMoveInCenterAnimationEnded,
@@ -96,7 +96,7 @@ internal fun LoyaltyFlipGrid(
 }
 
 @Composable
-private fun LoyaltyFlipCard(
+private fun FlipToWinCard(
     item: FlipToWinUiItem,
     onCardClicked: (FlipToWinUiItem) -> Unit,
     onMoveInCenterAnimationEnded: (FlipToWinUiItem) -> Unit,
@@ -141,35 +141,40 @@ private fun LoyaltyFlipCard(
             .clickable(enabled = item.clickable.value) { onCardClicked(item) },
         contentAlignment = Alignment.Center
     ) {
-        LoyaltyFlipCardImageItem(
+        FlipToWinCardImageItem(
             image = item.image.value,
             bitmap = item.bitmap,
+            isFlipped = item.isFlipped.value
         )
     }
 }
 
 @Composable
-private fun LoyaltyFlipCardImageItem(
+private fun FlipToWinCardImageItem(
     image: String,
     bitmap: State<Bitmap?>,
+    isFlipped: Boolean
 ) {
+    val modifier = Modifier
+        .fillMaxSize(if (bitmap.value == null) 0.5f else 1f)
+        .graphicsLayer {
+            // Correct mirroring when flipped
+            if (isFlipped) scaleX = -1f
+        }
+
     if (bitmap.value == null) {
         AsyncImage(
             model = image.loadImageWithCrossfade(),
             contentDescription = null,
             contentScale = ContentScale.Crop,
-            modifier = Modifier.fillMaxSize(0.5f),
+            modifier = modifier,
         )
     } else {
         bitmap.value?.asImageBitmap()?.let {
             Image(
                 bitmap = it,
                 contentDescription = null,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .graphicsLayer {
-                        scaleX = -1f
-                    }
+                modifier = modifier
             )
         }
     }
@@ -181,8 +186,9 @@ private fun rememberWiggleAnim(isWiggling: State<Boolean>): State<Float> {
     LaunchedEffect(isWiggling.value) {
         if (isWiggling.value) {
             while (isActive) {
-                wiggleAnim.animateTo(-10f, tween(700))
-                wiggleAnim.animateTo(10f, tween(700))
+                // Snappy 150ms wiggle
+                wiggleAnim.animateTo(-10f, tween(150))
+                wiggleAnim.animateTo(10f, tween(150))
             }
         } else {
             wiggleAnim.snapTo(0f)
