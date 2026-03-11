@@ -54,7 +54,8 @@ fun FlipToWinRewardType.toBrush(): Brush {
 val String.convertToIntColor: Int
     get() = try {
         this.toColorInt()
-    } catch (e: Exception) {
+    } catch (e: IllegalArgumentException) {
+        android.util.Log.e("FlipToWin", "Invalid color string: \"$this\", falling back to white", e)
         android.graphics.Color.WHITE
     }
 
