@@ -26,6 +26,12 @@ class FlipToWinViewModel : ViewModel() {
      * Safe to call multiple times — each call resets the game state.
      */
     fun init(result: FlipToWinResult) {
+        wiggleJob?.cancel()
+
+        _uiState.update { 
+            FlipToWinUiState().copy(showConfigErrorDialog = null) 
+        }
+
         viewModelScope.launch {
             delay(INITIAL_LOAD_DELAY_MS)
 
