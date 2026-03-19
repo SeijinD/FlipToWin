@@ -71,6 +71,15 @@ Key coverage areas in `FlipToWinUiMapperTest.kt`:
 - **Coil 3** (Image Loading & Pre-fetching)
 - **kotlinx.collections.immutable** (Persistent Collections)
 
+## 🧠 Why? (The "Medium" Story)
+
+"Flip to Win" is a deceptively simple mechanic. A user picks a card, a prize is revealed, and the grid flips. Looks easy—until you factor in the choreography of wiggles, zooms, 3D rotations, and the critical **backend-first reveal**.
+
+**FlipToWin** was engineered with a **"Claim Before You Reveal"** philosophy: ensuring prizes are only displayed after a successful backend handshake, protecting both the UX and business integrity. By using a purely reactive, immutable UDF model, it handles complex timing and midpoint image swaps without messy callback chains.
+
+Read the full engineering deep-dive on Medium:  
+[**Claim Before You Reveal: Engineering a Flip-to-Win Experience in Jetpack Compose**](https://medium.com/@seijind/claim-before-you-reveal-engineering-a-flip-to-win-experience-in-jetpack-compose-6f4f6e9fece6)
+
 ## 🤝 Contributing
 
 Contributions are welcome! Whether you have ideas for new animation styles, configuration parameters, or have found a bug, feel free to open an **issue** or submit a **pull request**.
