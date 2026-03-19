@@ -1,0 +1,10 @@
+{
+    "kotlin.languageServer.enabled": true,
+    "kotlin.compiler.jvm.target": "11",
+    "kotlin.gradle.enabled": true,
+    "kotlin.diagnostics.enabled": false,
+    "kotlin.completion.snippets.enabled": true,
+    "[kotlin]": {
+        "editor.formatOnSave": false
+    }
+}
